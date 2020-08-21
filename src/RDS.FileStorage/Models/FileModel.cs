@@ -1,6 +1,6 @@
 namespace RDS.FileStorage.Models
 {
-    public class BlobFile
+    public class FileModel
     {
         public string FileName {get; set; }
 

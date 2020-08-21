@@ -1,8 +1,8 @@
 namespace RDS.FileStorage.Models
 {
-    public class BlobDirectory 
+    public class FolderModel
     {
-        public string Name {get; set; }
+        public string Name { get; set; }
         public string FullPath {get; set; }
     }
 }

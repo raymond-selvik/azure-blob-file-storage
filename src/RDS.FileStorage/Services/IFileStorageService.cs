@@ -7,8 +7,8 @@ namespace RDS.FileStorage.Services
 {
     public interface IFileStorageService
     {
-        List<BlobDirectory> GetListOfDirectories(string directory);
-        List<BlobFile> GetListOfFiles(string directory);
+        List<FolderModel> GetListOfFolders(string currentDir);
+        List<FileModel> GetListOfFiles(string currentDir);
         Task<byte[]> DownloadFile(string filePath);
     }
 }

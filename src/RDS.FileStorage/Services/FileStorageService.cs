@@ -21,31 +21,31 @@ namespace RDS.FileStorage.Services
             containerClient = blobServiceClient.GetBlobContainerClient("demo");
         }
 
-        public List<BlobDirectory> GetListOfDirectories(string currentDir)
+        public List<FolderModel> GetListOfFolders(string currentDir)
         {
-            var directories = new List<BlobDirectory>();
+            var folders = new List<FolderModel>();
 
             foreach(var item in containerClient.GetBlobsByHierarchy(prefix: currentDir, delimiter : "/"))
             {
                 if(item.IsPrefix)
                 {
-                    var dir = new BlobDirectory
+                    var dir = new FolderModel
                     {
                         Name = Path.GetRelativePath(currentDir, item.Prefix),
                         FullPath = item.Prefix
                     };
 
-                    directories.Add(dir);
+                    folders.Add(dir);
                 }
             }
 
-            return directories;
+            return folders;
         }
 
-        public List<BlobFile> GetListOfFiles(string directory)
+        public List<FileModel> GetListOfFiles(string directory)
         {
             
-            var files = new List<BlobFile>();
+            var files = new List<FileModel>();
 
             foreach(var item in containerClient.GetBlobsByHierarchy(prefix: directory, delimiter : "/"))
             {
@@ -53,7 +53,7 @@ namespace RDS.FileStorage.Services
                 {
                     string filename = item.Blob.Name.Substring(item.Blob.Name.LastIndexOf("/") + 1);
 
-                    var file = new BlobFile
+                    var file = new FileModel
                     {
                         FileName = Path.GetFileName(item.Blob.Name),
                         Directory = Path.GetDirectoryName(item.Blob.Name),

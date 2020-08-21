@@ -15,31 +15,31 @@ namespace RDS.FileStorage.Controllers
     [Route("filecontroller")]
     public class FileController : ControllerBase
     {
+        private readonly IFileSystemService fileSystemService;
+
         private readonly IFileStorageService fileStorageService;
         private readonly ILogger<FileController> log;
 
-        public FileController(IFileStorageService fileStorageService, ILogger<FileController> log)
+        public FileController(
+            IFileSystemService fileSystemService, 
+            IFileStorageService fileStorageService,
+            ILogger<FileController> log)
         {
+            this.fileSystemService = fileSystemService;
             this.fileStorageService = fileStorageService;
             this.log = log;
         }
 
-        [HttpGet("directories")]
-        public IEnumerable<BlobDirectory> GetDirectories()
-        {
-            var directories = fileStorageService.GetListOfDirectories("files/");
-            return directories;
-        }
 
-        [HttpGet("files")]
-        public IEnumerable<BlobFile> GetFiles()
+        [HttpGet]
+        public DirectoryModel GetCurrentDirectory(string dir)
         {
-            var files = fileStorageService.GetListOfFiles("files/");
-            return files;
+            log.LogInformation(dir);
+            return fileSystemService.GetDirectory(dir);
         }
 
         [HttpPost("download")]
-        public async Task<FileContentResult> Download([FromBody] BlobFile file)
+        public async Task<FileContentResult> Download([FromBody] FileModel file)
         {
             log.LogInformation(file.FullFileName);
             var bytes = await fileStorageService.DownloadFile(file.FullFileName);
