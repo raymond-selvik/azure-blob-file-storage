@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
 using RDS.FileStorage.Models;
 
@@ -31,7 +34,9 @@ namespace RDS.FileStorage.Services
 
                     var file = new BlobFile
                     {
-                        Name = filename,
+                        FileName = Path.GetFileName(item.Blob.Name),
+                        Directory = Path.GetDirectoryName(item.Blob.Name),
+                        FullFileName = item.Blob.Name
                     };
 
 
@@ -40,6 +45,25 @@ namespace RDS.FileStorage.Services
             }
 
             return files;
+        }
+
+        public async Task<byte[]> DownloadFile(string filePath)
+        {
+            var blob = containerClient.GetBlobClient(filePath);
+
+            BlobDownloadInfo download = await blob.DownloadAsync();
+
+            /*MemoryStream downloadFileStream = new MemoryStream();
+
+            await download.Content.CopyToAsync(downloadFileStream);
+            return downloadFileStream;*/
+
+            using (var ms = new MemoryStream())
+            {
+                download.Content.CopyTo(ms);
+                return ms.ToArray();
+            }
+            
         }
     }
 }

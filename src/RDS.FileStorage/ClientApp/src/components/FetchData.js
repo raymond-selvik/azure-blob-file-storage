@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
+import {FileItem} from './FileItem';
+
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
 
   constructor(props) {
     super(props);
-    this.state = { files: [], loading: true };
+    this.state = { 
+      files: [], 
+      loading: true 
+    };
   }
 
   componentDidMount() {
@@ -18,19 +23,18 @@ export class FetchData extends Component {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Directory</th>
           </tr>
         </thead>
         <tbody>
           {files.map(file =>
-          <tr>
-            <td>{file.name}</td>
-            </tr>
+            <FileItem file={file}/>
           )}
         </tbody>
       </table>
     );
   }
-
+  
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
@@ -48,6 +52,7 @@ export class FetchData extends Component {
   async populateWeatherData() {
     const response = await fetch('filecontroller');
     const data = await response.json();
+    console.log(data);
     this.setState({ files: data, loading: false });
   }
 }
