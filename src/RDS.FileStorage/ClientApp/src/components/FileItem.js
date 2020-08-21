@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { BiFileBlank } from "react-icons/bi";
 
 export class FileItem extends Component {
 
@@ -11,7 +12,7 @@ export class FileItem extends Component {
     render() {
         return (
             <tr key={this.state.file.fileName} onClick={(fileName) => this.downloadFile()}>
-                <td>{this.state.file.fileName}</td>
+                <td><BiFileBlank/>{this.state.file.fileName}</td>
                 <td>{this.state.file.directory}</td>
             </tr>
         );

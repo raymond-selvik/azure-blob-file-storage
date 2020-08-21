@@ -21,7 +21,28 @@ namespace RDS.FileStorage.Services
             containerClient = blobServiceClient.GetBlobContainerClient("demo");
         }
 
-        public List<BlobFile> GetFiles(string directory)
+        public List<BlobDirectory> GetListOfDirectories(string currentDir)
+        {
+            var directories = new List<BlobDirectory>();
+
+            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: currentDir, delimiter : "/"))
+            {
+                if(item.IsPrefix)
+                {
+                    var dir = new BlobDirectory
+                    {
+                        Name = Path.GetRelativePath(currentDir, item.Prefix),
+                        FullPath = item.Prefix
+                    };
+
+                    directories.Add(dir);
+                }
+            }
+
+            return directories;
+        }
+
+        public List<BlobFile> GetListOfFiles(string directory)
         {
             
             var files = new List<BlobFile>();
@@ -43,7 +64,6 @@ namespace RDS.FileStorage.Services
                     files.Add(file);
                 }
             }
-
             return files;
         }
 
@@ -53,17 +73,11 @@ namespace RDS.FileStorage.Services
 
             BlobDownloadInfo download = await blob.DownloadAsync();
 
-            /*MemoryStream downloadFileStream = new MemoryStream();
-
-            await download.Content.CopyToAsync(downloadFileStream);
-            return downloadFileStream;*/
-
             using (var ms = new MemoryStream())
             {
                 download.Content.CopyTo(ms);
                 return ms.ToArray();
-            }
-            
+            } 
         }
     }
 }

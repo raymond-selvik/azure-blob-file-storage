@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {FileItem} from './FileItem';
+import {DirItem} from './DirItem';
 
 
 export class FetchData extends Component {
@@ -8,16 +9,18 @@ export class FetchData extends Component {
   constructor(props) {
     super(props);
     this.state = { 
-      files: [], 
+      files: [],
+      dirs: [], 
       loading: true 
     };
   }
 
   componentDidMount() {
-    this.populateWeatherData();
+    this.getFiles();
+    this.getDirectories();
   }
 
-  static renderForecastsTable(files) {
+  static renderForecastsTable(files, dirs) {
     return (
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
@@ -26,9 +29,12 @@ export class FetchData extends Component {
             <th>Directory</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody>¨
+          {dirs.map(dir =>
+            <DirItem dir = {dir}/>
+          )}
           {files.map(file =>
-            <FileItem file={file}/>
+            <FileItem file = {file}/>
           )}
         </tbody>
       </table>
@@ -36,9 +42,7 @@ export class FetchData extends Component {
   }
   
   render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.files);
+    let contents = FetchData.renderForecastsTable(this.state.files, this.state.dirs);
 
     return (
       <div>
@@ -49,10 +53,17 @@ export class FetchData extends Component {
     );
   }
 
-  async populateWeatherData() {
-    const response = await fetch('filecontroller');
+  async getFiles() {
+    const response = await fetch('filecontroller/files');
     const data = await response.json();
     console.log(data);
     this.setState({ files: data, loading: false });
+  }
+
+  async getDirectories() {
+    const response = await fetch('filecontroller/directories');
+    const data = await response.json();
+    console.log(data);
+    this.setState({ dirs: data, loading: false });
   }
 }

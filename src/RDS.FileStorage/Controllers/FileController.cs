@@ -24,29 +24,27 @@ namespace RDS.FileStorage.Controllers
             this.log = log;
         }
 
-        [HttpGet]
-        public IEnumerable<BlobFile> Get()
+        [HttpGet("directories")]
+        public IEnumerable<BlobDirectory> GetDirectories()
         {
-            var files = fileStorageService.GetFiles("files/");
+            var directories = fileStorageService.GetListOfDirectories("files/");
+            return directories;
+        }
+
+        [HttpGet("files")]
+        public IEnumerable<BlobFile> GetFiles()
+        {
+            var files = fileStorageService.GetListOfFiles("files/");
             return files;
         }
 
         [HttpPost("download")]
         public async Task<FileContentResult> Download([FromBody] BlobFile file)
         {
-
             log.LogInformation(file.FullFileName);
             var bytes = await fileStorageService.DownloadFile(file.FullFileName);
 
             return File(bytes, "application/octet-stream");
-            //return Ok();
-
-            /*var stream = new MemoryStream(Encoding.ASCII.GetBytes("Hello World"));
-            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/plain"))
-            {
-                FileDownloadName = "test.txt"
-            };*/
         }
-
     }
 }
