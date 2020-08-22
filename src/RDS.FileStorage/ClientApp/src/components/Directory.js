@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BiFolder, BiFileBlank } from "react-icons/bi";
+import Button from 'react-bootstrap/Button';
 
 
 export class Directory extends Component {
@@ -23,12 +24,16 @@ export class Directory extends Component {
 
   render() {
     var changeDirectory = this.changeDirectory;
+    var upDirectory = this.upDirectory;
     var downloadFile = this.downloadFile;
 
     return (
       <div>
         <h1 id="tabelLabel" >File System</h1>
         <p>This component demonstrates fetching data from the server.</p>
+        <Button variant="primary" onClick={() => upDirectory()}>
+          Primary
+        </Button>{' '}
         <table className='table table-striped' aria-labelledby="tabelLabel">
           <thead>
             <th>Current Directory</th>
@@ -91,6 +96,23 @@ export class Directory extends Component {
     console.log("heifra innsiden");
     this.setState({
       currentDir : folder.path
+    }, () => {
+      this.getDirectory()
+    })
+  }
+
+  upDirectory = () => {
+    var array = this.state.currentDir.split('/');
+    array.pop();
+    array.pop();
+
+    var newDir = "";
+    array.forEach(element => {
+      newDir = newDir + element + '/'
+    });
+
+    this.setState({
+      currentDir : newDir
     }, () => {
       this.getDirectory()
     })
