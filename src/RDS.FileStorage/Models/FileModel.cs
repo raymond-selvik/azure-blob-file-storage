@@ -1,11 +1,16 @@
+using RDS.FileStorage.Utils;
+
 namespace RDS.FileStorage.Models
 {
     public class FileModel
     {
-        public string FileName {get; set; }
+        public string Name {
+            get
+            {
+                return PathUtils.FilePathToFileName(this.Path);
+            } 
+        }
 
-        public string Directory { get; set; }
-
-        public string FullFileName { get; set; }
+        public string Path { get; set; }
     }
 }

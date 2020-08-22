@@ -21,52 +21,33 @@ namespace RDS.FileStorage.Services
         }
 
         
-        public List<FolderModel> GetListOfFolders(string currentDir)
+        public List<FolderModel> GetListOfFolders(string dir)
         {
             var folders = new List<FolderModel>();
 
-            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: currentDir, delimiter : "/"))
+            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: dir, delimiter : "/"))
             {
                 if(item.IsPrefix)
                 {
-                    var dir = new FolderModel
-                    {
-                        Name = Path.GetRelativePath(currentDir, item.Prefix),
-                        FullPath = item.Prefix
-                    };
-
-                    folders.Add(dir);
+                    folders.Add(new FolderModel{Path = item.Prefix});
                 }
             }
 
             return folders;
         }
 
-        public List<FileModel> GetListOfFiles(string directory)
+        public List<FileModel> GetListOfFiles(string dir)
         {
-            
             var files = new List<FileModel>();
 
-            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: directory, delimiter : "/"))
+            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: dir, delimiter : "/"))
             {
                 if(item.IsBlob)
                 {
-                    string filename = item.Blob.Name.Substring(item.Blob.Name.LastIndexOf("/") + 1);
-
-                    var file = new FileModel
-                    {
-                        FileName = Path.GetFileName(item.Blob.Name),
-                        Directory = Path.GetDirectoryName(item.Blob.Name),
-                        FullFileName = item.Blob.Name
-                    };
-
-
-                    files.Add(file);
+                    files.Add(new FileModel{Path = item.Blob.Name});
                 }
             }
             return files;
         }
-
-
     }
 }

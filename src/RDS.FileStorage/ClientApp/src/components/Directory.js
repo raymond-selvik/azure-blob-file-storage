@@ -21,65 +21,9 @@ export class Directory extends Component {
     this.getDirectory();
   }
 
-  /*static renderForecastsTable(files, folders) {
-
-    return (
-      <table className='table table-striped' aria-labelledby="tabelLabel">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Directory</th>
-          </tr>
-        </thead>
-        <tbody>
-          {folders.map(folder =>
-            <tr key={folder.name} onClick={() => this.changeDirectory()}> 
-              <td><BiFolder/>{folder.name}</td>
-              <td>{folder.fullPath}</td>
-            </tr>
-          )}
-          {files.map(file =>
-            <tr key={file.fileName} onClick={() => downloadFile(file)}>
-              <td><BiFileBlank/>{file.fileName}</td>
-              <td>{file.directory}</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    );
-  }*/
-  
   render() {
     var changeDirectory = this.changeDirectory;
-    //let contents = Directory.renderForecastsTable(this.state.files, this.state.folders);
-
-    async function downloadFile(file){
-        
-      const requestOptions = {
-          method: 'POST',
-          headers: {  
-              //'Accept': 'application/octet-stream',
-              'Content-Type': 'application/json'
-          },
-          //body: this.state.file
-          body: JSON.stringify(file)
-      };
-  
-      await fetch('filecontroller/download', requestOptions)
-      .then((response) => response.blob())
-      .then((blob) => {
-          const url = window.URL.createObjectURL(new Blob([blob]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', file.fileName);
-          // 3. Append to html page
-          document.body.appendChild(link);
-          // 4. Force download
-          link.click();
-          // 5. Clean up and remove the link
-          link.parentNode.removeChild(link);
-      })
-    }
+    var downloadFile = this.downloadFile;
 
     return (
       <div>
@@ -104,8 +48,8 @@ export class Directory extends Component {
             </tr>
           )}
           {this.state.files.map(file =>
-            <tr key={file.fileName} onClick={() => downloadFile(file)}>
-              <td><BiFileBlank/>{file.fileName}</td>
+            <tr key={file.name} onClick={() => downloadFile(file)}>
+              <td><BiFileBlank/>{file.name}</td>
               <td>{file.directory}</td>
             </tr>
           )}
@@ -115,25 +59,56 @@ export class Directory extends Component {
     );
   }
 
+  downloadFile = async (file) => {
+        
+    const requestOptions = {
+        method: 'POST',
+        headers: {  
+            //'Accept': 'application/octet-stream',
+            'Content-Type': 'application/json'
+        },
+        //body: this.state.file
+        body: JSON.stringify(file)
+    };
+
+    await fetch('file/download', requestOptions)
+    .then((response) => response.blob())
+    .then((blob) => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', file.name);
+        // 3. Append to html page
+        document.body.appendChild(link);
+        // 4. Force download
+        link.click();
+        // 5. Clean up and remove the link
+        link.parentNode.removeChild(link);
+    })
+  }
+
   changeDirectory  = (folder) => {
     console.log("heifra innsiden");
     this.setState({
-      currentDir : folder.fullPath
+      currentDir : folder.path
     }, () => {
       this.getDirectory()
     })
   }
 
   async getDirectory() {
-    const folderReponse = await fetch('filecontroller/folders?' + new URLSearchParams({
+    const folderReponse = await fetch('directory/folders?' + new URLSearchParams({
       dir: this.state.currentDir,
     }));
     const folders = await folderReponse.json();
 
-    const fileResponse = await fetch('filecontroller/files?' + new URLSearchParams({
+    const fileResponse = await fetch('directory/files?' + new URLSearchParams({
       dir: this.state.currentDir,
     }));
     const files = await fileResponse.json();
+
+    console.log(folders);
+    console.log(files);
 
     this.setState({
       files: files,

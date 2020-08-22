@@ -21,9 +21,9 @@ namespace RDS.FileStorage.Services
             containerClient = blobServiceClient.GetBlobContainerClient("demo");
         }
 
-        public async Task<byte[]> DownloadFile(string filePath)
+        public async Task<byte[]> DownloadFile(FileModel file)
         {
-            var blob = containerClient.GetBlobClient(filePath);
+            var blob = containerClient.GetBlobClient(file.Path);
 
             BlobDownloadInfo download = await blob.DownloadAsync();
 

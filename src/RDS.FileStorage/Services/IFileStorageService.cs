@@ -7,6 +7,7 @@ namespace RDS.FileStorage.Services
 {
     public interface IFileStorageService
     {
-        Task<byte[]> DownloadFile(string filePath);
+        Task<byte[]> DownloadFile(FileModel file);
+
     }
 }
