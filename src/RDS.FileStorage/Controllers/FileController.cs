@@ -31,11 +31,16 @@ namespace RDS.FileStorage.Controllers
         }
 
 
-        [HttpGet]
-        public DirectoryModel GetCurrentDirectory(string dir)
+        [HttpGet("folders")]
+        public IEnumerable<FolderModel> GetListOfFolders(string dir)
         {
-            log.LogInformation(dir);
-            return fileSystemService.GetDirectory(dir);
+            return fileSystemService.GetListOfFolders(dir);
+        }
+
+        [HttpGet("files")]
+        public IEnumerable<FileModel> GetListOfFiles(string dir)
+        {
+            return fileSystemService.GetListOfFiles(dir);
         }
 
         [HttpPost("download")]

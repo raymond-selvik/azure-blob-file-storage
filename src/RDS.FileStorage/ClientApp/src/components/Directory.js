@@ -86,6 +86,10 @@ export class Directory extends Component {
         <h1 id="tabelLabel" >File System</h1>
         <p>This component demonstrates fetching data from the server.</p>
         <table className='table table-striped' aria-labelledby="tabelLabel">
+          <thead>
+            <th>Current Directory</th>
+            <th>{this.state.currentDir}</th>
+          </thead>
         <thead>
           <tr>
             <th>Name</th>
@@ -115,20 +119,25 @@ export class Directory extends Component {
     console.log("heifra innsiden");
     this.setState({
       currentDir : folder.fullPath
-    });
-
-    this.getDirectory();
+    }, () => {
+      this.getDirectory()
+    })
   }
 
   async getDirectory() {
-    const response = await fetch('filecontroller?' + new URLSearchParams({
+    const folderReponse = await fetch('filecontroller/folders?' + new URLSearchParams({
       dir: this.state.currentDir,
-  }));
-    const data = await response.json();
-    console.log(data);
+    }));
+    const folders = await folderReponse.json();
+
+    const fileResponse = await fetch('filecontroller/files?' + new URLSearchParams({
+      dir: this.state.currentDir,
+    }));
+    const files = await fileResponse.json();
+
     this.setState({
-      files: data.files,
-      folders: data.folders,
+      files: files,
+      folders: folders,
       loading: false 
     });
   }

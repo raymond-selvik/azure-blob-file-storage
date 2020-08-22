@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.IO;
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 using RDS.FileStorage.Models;
 
@@ -5,29 +8,65 @@ namespace RDS.FileStorage.Services
 {
     public class FileSystemService : IFileSystemService
     {
-        public readonly IFileStorageService fileStorageService;
-        public readonly ILogger<IFileSystemService> log;
 
-        public FileSystemService(IFileStorageService fileStorageService, ILogger<IFileSystemService> log)
+        private readonly BlobServiceClient blobServiceClient;
+        private readonly ILogger<IFileSystemService> log;
+        private readonly BlobContainerClient containerClient;
+        
+        public FileSystemService(BlobServiceClient blobServiceClient, ILogger<IFileSystemService> log)
         {
-            this.fileStorageService = fileStorageService;
+            this.blobServiceClient = blobServiceClient;
             this.log = log;
+            containerClient = blobServiceClient.GetBlobContainerClient("demo");
         }
 
-        public DirectoryModel GetDirectory(string currentDir)
+        
+        public List<FolderModel> GetListOfFolders(string currentDir)
         {
-            var files = fileStorageService.GetListOfFiles(currentDir);  
-            var folders = fileStorageService.GetListOfFolders(currentDir);
+            var folders = new List<FolderModel>();
 
-            var directory = new DirectoryModel 
+            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: currentDir, delimiter : "/"))
             {
-                Path = currentDir,
-                Files = files,
-                Folders = folders
-            };
+                if(item.IsPrefix)
+                {
+                    var dir = new FolderModel
+                    {
+                        Name = Path.GetRelativePath(currentDir, item.Prefix),
+                        FullPath = item.Prefix
+                    };
 
-            return directory;
+                    folders.Add(dir);
+                }
+            }
+
+            return folders;
         }
+
+        public List<FileModel> GetListOfFiles(string directory)
+        {
+            
+            var files = new List<FileModel>();
+
+            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: directory, delimiter : "/"))
+            {
+                if(item.IsBlob)
+                {
+                    string filename = item.Blob.Name.Substring(item.Blob.Name.LastIndexOf("/") + 1);
+
+                    var file = new FileModel
+                    {
+                        FileName = Path.GetFileName(item.Blob.Name),
+                        Directory = Path.GetDirectoryName(item.Blob.Name),
+                        FullFileName = item.Blob.Name
+                    };
+
+
+                    files.Add(file);
+                }
+            }
+            return files;
+        }
+
 
     }
 }

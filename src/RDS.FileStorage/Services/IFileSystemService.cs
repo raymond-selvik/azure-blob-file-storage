@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using RDS.FileStorage.Models;
 
 namespace RDS.FileStorage.Services
 {
     public interface IFileSystemService
     {
-        DirectoryModel GetDirectory(string currentDir);
+        List<FolderModel> GetListOfFolders(string dir);
+        List<FileModel> GetListOfFiles(string dir);
     }
 }
