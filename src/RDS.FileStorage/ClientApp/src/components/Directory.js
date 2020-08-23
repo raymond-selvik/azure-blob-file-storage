@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { BiFolder, BiFileBlank } from "react-icons/bi";
 import Button from 'react-bootstrap/Button';
 
-
 export class Directory extends Component {
   static displayName = Directory.name;
 
   constructor(props) {
     super(props);
     this.state = {
-      currentDir: "files/",
+      currentDir: "files",
       folders : [],
       files : [], 
       loading: true 
@@ -26,6 +25,7 @@ export class Directory extends Component {
     var changeDirectory = this.changeDirectory;
     var upDirectory = this.upDirectory;
     var downloadFile = this.downloadFile;
+
 
     return (
       <div>
@@ -55,7 +55,7 @@ export class Directory extends Component {
           {this.state.files.map(file =>
             <tr key={file.name} onClick={() => downloadFile(file)}>
               <td><BiFileBlank/>{file.name}</td>
-              <td>{file.directory}</td>
+              <td>{file.fullPath}</td>
             </tr>
           )}
         </tbody>
@@ -95,21 +95,23 @@ export class Directory extends Component {
   changeDirectory  = (folder) => {
     console.log("heifra innsiden");
     this.setState({
-      currentDir : folder.path
+      currentDir : folder.fullPath
     }, () => {
       this.getDirectory()
     })
   }
 
   upDirectory = () => {
+
     var array = this.state.currentDir.split('/');
-    array.pop();
     array.pop();
 
     var newDir = "";
     array.forEach(element => {
       newDir = newDir + element + '/'
     });
+
+    newDir = newDir.slice(0, newDir.length - 1);
 
     this.setState({
       currentDir : newDir

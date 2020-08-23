@@ -3,6 +3,7 @@ using System.IO;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 using RDS.FileStorage.Models;
+using RDS.FileStorage.Utils;
 
 namespace RDS.FileStorage.Services
 {
@@ -25,11 +26,11 @@ namespace RDS.FileStorage.Services
         {
             var folders = new List<FolderModel>();
 
-            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: dir, delimiter : "/"))
+            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: PathUtils.DirPathToBlobPrefix(dir), delimiter : "/"))
             {
                 if(item.IsPrefix)
                 {
-                    folders.Add(new FolderModel{Path = item.Prefix});
+                    folders.Add(new FolderModel{FullPath = PathUtils.BlobPrefixToDirPath(item.Prefix)});
                 }
             }
 
@@ -40,11 +41,11 @@ namespace RDS.FileStorage.Services
         {
             var files = new List<FileModel>();
 
-            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: dir, delimiter : "/"))
+            foreach(var item in containerClient.GetBlobsByHierarchy(prefix: PathUtils.DirPathToBlobPrefix(dir), delimiter : "/"))
             {
                 if(item.IsBlob)
                 {
-                    files.Add(new FileModel{Path = item.Blob.Name});
+                    files.Add(new FileModel{FullPath = item.Blob.Name});
                 }
             }
             return files;

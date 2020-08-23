@@ -23,7 +23,7 @@ namespace RDS.FileStorage.Services
 
         public async Task<byte[]> DownloadFile(FileModel file)
         {
-            var blob = containerClient.GetBlobClient(file.Path);
+            var blob = containerClient.GetBlobClient(file.FullPath);
 
             BlobDownloadInfo download = await blob.DownloadAsync();
 

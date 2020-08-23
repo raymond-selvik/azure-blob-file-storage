@@ -1,3 +1,4 @@
+using System.IO;
 using RDS.FileStorage.Utils;
 
 namespace RDS.FileStorage.Models
@@ -8,9 +9,9 @@ namespace RDS.FileStorage.Models
         { 
             get 
             {
-                return PathUtils.FolderPathToFolderName(this.Path);
+                return Path.GetFileNameWithoutExtension(FullPath);
             }  
         }
-        public string Path {get; set; }
+        public string FullPath {get; set; }
     }
 }

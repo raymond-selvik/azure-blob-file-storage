@@ -4,16 +4,22 @@ namespace RDS.FileStorage.Utils
 {
     public static class PathUtils
     {
-        public static string FilePathToFileName(string path)
+        public static string BlobPrefixToDirPath(string prefix)
         {
-            return path.Substring(path.LastIndexOf("/") + 1);
+            var path = prefix.Remove(prefix.Length - 1);
+            return path;
         }
 
-        public static string FolderPathToFolderName(string path)
+        public static string DirPathToBlobPrefix(string dir)
         {
-            var folder = path.Remove(path.Length - 1);
-            return folder.Substring(folder.LastIndexOf("/") + 1);
+            if (dir == null) 
+            {
+                return "";
+            }
+            else
+            {
+                return dir + "/";
+            }
         }
-
     }
 }
