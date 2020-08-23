@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
@@ -23,15 +24,22 @@ namespace RDS.FileStorage.Services
 
         public async Task<byte[]> DownloadFile(FileModel file)
         {
-            var blob = containerClient.GetBlobClient(file.FullPath);
-
-            BlobDownloadInfo download = await blob.DownloadAsync();
-
-            using (var ms = new MemoryStream())
+            try 
             {
-                download.Content.CopyTo(ms);
-                return ms.ToArray();
-            } 
+                var blob = containerClient.GetBlobClient(file.FullPath);
+
+                BlobDownloadInfo download = await blob.DownloadAsync();
+
+                using (var ms = new MemoryStream())
+                {
+                    download.Content.CopyTo(ms);
+                    return ms.ToArray();
+                } 
+            }
+            catch(RequestFailedException e)
+            {
+                throw new FileNotFoundException($"Could not find the file {file.FullPath}");
+            }
         }
 
         //void UploadFilse

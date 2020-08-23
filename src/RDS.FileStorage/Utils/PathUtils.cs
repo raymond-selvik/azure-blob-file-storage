@@ -6,8 +6,14 @@ namespace RDS.FileStorage.Utils
     {
         public static string BlobPrefixToDirPath(string prefix)
         {
-            var path = prefix.Remove(prefix.Length - 1);
-            return path;
+            if(prefix == "") 
+            {
+                return "";
+            }
+            else
+            {
+                return prefix.Remove(prefix.Length - 1);
+            }
         }
 
         public static string DirPathToBlobPrefix(string dir)

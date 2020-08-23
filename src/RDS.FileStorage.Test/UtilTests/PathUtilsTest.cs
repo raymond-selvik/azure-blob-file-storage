@@ -6,21 +6,25 @@ namespace RDS.FileStorage.Test.UtilTests
     public class PathUtilTest 
     {
         [Fact]
-        public void BlobNameToFileNameTest()
+        public void DirPathToBlobPrefixTest()
         {
+            var path = "files/folder";
+            var expected = "files/folder/";
 
+            var actual = PathUtils.DirPathToBlobPrefix(path);
+
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BlobPrefixToFolderName()
+        public void BlobPrefixToDirPathTest()
         {
-            var expected = "folder";
-            var path = "files/folder/";
+            var prefix = "files/";
+            var expected = "files";
 
-            var actual = PathUtils.FolderPathToFolderName(path);
+            var actual = PathUtils.BlobPrefixToDirPath(prefix);
 
             Assert.Equal(expected, actual);
-
         }
     }
 }

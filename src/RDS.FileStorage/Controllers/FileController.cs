@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,12 +22,18 @@ namespace RDS.FileStorage.Controllers
         }
 
         [HttpPost("download")]
-        public async Task<FileContentResult> Download([FromBody] FileModel file)
+        public async Task<ActionResult> Download([FromBody] FileModel file)
         {
-            log.LogInformation(file.Name);
-            var bytes = await fileStorageService.DownloadFile(file);
-
-            return File(bytes, "application/octet-stream");
+            try
+            {
+                var fileBytes = await fileStorageService.DownloadFile(file);
+                return File(fileBytes, "application/octet-stream");
+            }
+            catch(FileNotFoundException e)
+            {
+                log.LogError(e.Message);
+                return new NotFoundResult();
+            }
         }
     }
 }
