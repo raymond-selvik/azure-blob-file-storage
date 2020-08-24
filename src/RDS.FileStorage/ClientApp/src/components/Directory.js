@@ -11,11 +11,16 @@ export class Directory extends Component {
       currentDir: "files",
       folders : [],
       files : [], 
-      loading: true 
+      loading: true ,
+      selectedFile: '',
     };
 
+    this.fileInput = React.fileInput;
     this.changeDirectory = this.changeDirectory.bind(this);
+    this.uploadFile = this.uploadFile.bind(this);
+
   }
+
 
   componentDidMount() {
     this.getDirectory();
@@ -25,15 +30,20 @@ export class Directory extends Component {
     var changeDirectory = this.changeDirectory;
     var upDirectory = this.upDirectory;
     var downloadFile = this.downloadFile;
+    //var uploadFile = this.uploadFile;
 
-
+ 
+    
     return (
       <div>
         <h1 id="tabelLabel" >File System</h1>
         <p>This component demonstrates fetching data from the server.</p>
         <Button variant="primary" onClick={() => upDirectory()}>
           Primary
-        </Button>{' '}
+        </Button>
+        <div>
+        <input  value={this.state.selectedFile} type='file' onChange={this.uploadFile}/>
+        </div>  
         <table className='table table-striped' aria-labelledby="tabelLabel">
           <thead>
             <th>Current Directory</th>
@@ -64,6 +74,27 @@ export class Directory extends Component {
     );
   }
 
+  async uploadFile (event) {
+    this.setState({selectedFile: event.target.value});
+    console.log(event.target.files);
+
+    let form = new FormData();
+
+    form.append('file', event.target.files[0]);
+    form.append('path', this.state.currentDir);
+
+    await fetch('file/upload',
+        {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + sessionStorage.tokenKey
+            },
+            body: form
+        });
+  }
+
   downloadFile = async (file) => {
         
     const requestOptions = {
@@ -77,7 +108,13 @@ export class Directory extends Component {
     };
 
     await fetch('file/download', requestOptions)
-    .then((response) => response.blob())
+    .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+
+        return response.blob();
+      })
     .then((blob) => {
         const url = window.URL.createObjectURL(new Blob([blob]));
         const link = document.createElement('a');
@@ -89,6 +126,9 @@ export class Directory extends Component {
         link.click();
         // 5. Clean up and remove the link
         link.parentNode.removeChild(link);
+    })
+    .catch( err => {
+      alert('File not found');
     })
   }
 

@@ -15,18 +15,15 @@ namespace RDS.FileStorage.Controllers
     [Route("directory")]
     public class DirectoryController : ControllerBase
     {
-        private readonly IFileSystemService fileSystemService;
+        private readonly IDirectoryService directoryService;
 
-        private readonly IFileStorageService fileStorageService;
         private readonly ILogger<DirectoryController> log;
 
         public DirectoryController(
-            IFileSystemService fileSystemService, 
-            IFileStorageService fileStorageService,
+            IDirectoryService directoryService, 
             ILogger<DirectoryController> log)
         {
-            this.fileSystemService = fileSystemService;
-            this.fileStorageService = fileStorageService;
+            this.directoryService = directoryService;
             this.log = log;
         }
 
@@ -34,13 +31,13 @@ namespace RDS.FileStorage.Controllers
         [HttpGet("folders")]
         public IEnumerable<FolderModel> GetListOfFolders(string dir)
         {
-            return fileSystemService.GetListOfFolders(dir);
+            return directoryService.GetListOfFolders(dir);
         }
 
         [HttpGet("files")]
         public IEnumerable<FileModel> GetListOfFiles(string dir)
         {
-            return fileSystemService.GetListOfFiles(dir);
+            return directoryService.GetListOfFiles(dir);
         }
     }
 }

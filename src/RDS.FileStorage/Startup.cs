@@ -29,8 +29,8 @@ namespace RDS.FileStorage
                 builder.AddBlobServiceClient(Configuration.GetConnectionString("Storage"));
             });
 
-            services.AddSingleton<IFileStorageService, FileStorageService>();
-            services.AddSingleton<IFileSystemService, FileSystemService>();
+            services.AddSingleton<IDirectoryService, DirectoryService>();
+            services.AddSingleton<IFileService, FileService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

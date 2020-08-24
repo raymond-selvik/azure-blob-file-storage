@@ -10,14 +10,14 @@ using RDS.FileStorage.Utils;
 
 namespace RDS.FileStorage.Services
 {
-    public class FileSystemService : IFileSystemService
+    public class DirectoryService : IDirectoryService
     {
 
         private readonly BlobServiceClient blobServiceClient;
-        private readonly ILogger<IFileSystemService> log;
+        private readonly ILogger<IDirectoryService> log;
         private readonly BlobContainerClient containerClient;
         
-        public FileSystemService(BlobServiceClient blobServiceClient, ILogger<IFileSystemService> log)
+        public DirectoryService(BlobServiceClient blobServiceClient, ILogger<IDirectoryService> log)
         {
             this.blobServiceClient = blobServiceClient;
             this.log = log;
@@ -69,6 +69,12 @@ namespace RDS.FileStorage.Services
             {
                 throw new DirectoryException($"Could not get list of files in directory {dir}");
             }
+        }
+
+        public bool FileExsists(string filePath)
+        {
+            var blob = containerClient.GetBlobClient(filePath);
+            return blob.Exists();
         }
     }
 }
