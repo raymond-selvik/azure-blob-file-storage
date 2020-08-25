@@ -46,9 +46,20 @@ namespace RDS.FileStorage.Controllers
         {
             try
             {
+                string filename;
+                if(file.Path == null) 
+                {
+                    filename = file.File.FileName;
+                }
+                else 
+                {
+                    filename = file.Path + "/" + file.File.FileName;
+
+                }
+
                 using(var stream = file.File.OpenReadStream())
                 {
-                    var fileModel = await fileService.SaveFile(file.Path + "/" + file.File.FileName, stream);
+                    var fileModel = await fileService.SaveFile(filename, stream);
 
                     return Ok(fileModel);
                 }
