@@ -1,9 +1,14 @@
 import React, {Component} from 'react';
-import { BsUpload } from "react-icons/bs";
-import Modal from "react-bootstrap/Modal";
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form'
 
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import IconButton from '@material-ui/core/IconButton';
+import PublishIcon from '@material-ui/icons/Publish';
 
 export class FileUpload extends Component {
     static displayName = FileUpload.name;
@@ -21,7 +26,7 @@ export class FileUpload extends Component {
         }
     }
 
-    handleClose = () => this.setState({showUploader: false});
+    handleClose = () => this.setState({showUploader: false, fileSelected: false});
     handleShow = () => this.setState({showUploader: true});
 
     onFileSelect = e => {
@@ -68,37 +73,43 @@ export class FileUpload extends Component {
         });
 
         this.handleClose();
+
+        this.props.callback();
     }
 
     render() {
         return(
             <>
-            <Button variant='primary' onClick={this.handleShow}>
-                <BsUpload/>
-            </Button>
-            <Modal
-                show = {this.state.showUploader}
-                onHide = {this.handleClose}
-                backdrop = "static"
-                keyboard = {false}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Upload File</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={this.onSubmit}>
-                        <Form.File 
-                            id="custom-file"
-                            label={this.state.fileName}
-                            custom
-                            onChange={this.onFileSelect}
-                        />
-                        <hr/>
-                        <Button variant="primary" type="submit" disabled={!this.state.fileSelected}>Upload</Button>
-                    </Form>
-                </Modal.Body>
-            </Modal>
-            </>
+            <IconButton onClick={this.handleShow}>
+                <PublishIcon/>
+            </IconButton>
+            <Dialog open={this.state.showUploader} onClose={this.handleClose}>
+                <DialogTitle>Upload File</DialogTitle>
+                <DialogContent>
+          <DialogContentText>
+            To subscribe to this website, please enter your email address here. We will send updates
+            occasionally.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            onChange={this.onFileSelect}
+            margin="dense"
+            id="name"
+            label={this.state.fileName}
+            type="file"
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button color="primary" onClick={this.handleClose}>
+            Cancel
+          </Button>
+          <Button color="primary" disabled={!this.state.fileSelected} type="submit" onClick={this.onSubmit}>
+            Upload
+          </Button>
+        </DialogActions>
+            </Dialog>
+        </>
         )
     }
 }

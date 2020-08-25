@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { BiFolder, BiFileBlank } from "react-icons/bi";
-import Button from 'react-bootstrap/Button';
-import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
+
+import IconButton from '@material-ui/core/IconButton';
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+
 import { FileUpload } from './FileUpload';
 
 export class Directory extends Component {
@@ -42,11 +43,13 @@ export class Directory extends Component {
         <p>This component demonstrates fetching data from the server.</p>
 
         <>
-          <Button variant="primary" onClick={() => upDirectory()}>
-            Up
-          </Button>
-          {" "}
-          <FileUpload dir={this.state.currentDir}></FileUpload>
+          <IconButton onClick={() => upDirectory()}>
+            <ArrowLeftIcon/>
+          </IconButton>
+        
+          <FileUpload
+            dir={this.state.currentDir}
+            callback={this.refreshDirectory}></FileUpload>
         </>
         
         <table className='table table-striped' aria-labelledby="tabelLabel">
@@ -56,13 +59,13 @@ export class Directory extends Component {
         <tbody>
           {this.state.folders.map(folder =>
             <tr key={folder.name} onClick={() => changeDirectory(folder)}> 
-              <td><BiFolder/>{folder.name}</td>
+              <td>{folder.name}</td>
               <td>{folder.fullPath}</td>
             </tr>
           )}
           {this.state.files.map(file =>
             <tr key={file.name} onClick={() => downloadFile(file)}>
-              <td><BiFileBlank/>{file.name}</td>
+              <td>{file.name}</td>
               <td>{file.fullPath}</td>
             </tr>
           )}
@@ -131,7 +134,6 @@ export class Directory extends Component {
   }
 
   changeDirectory  = (folder) => {
-    console.log("heifra innsiden");
     this.setState({
       currentDir : folder.fullPath
     }, () => {
@@ -156,6 +158,10 @@ export class Directory extends Component {
     }, () => {
       this.getDirectory()
     })
+  }
+
+  refreshDirectory = () => {
+    this.getDirectory();
   }
 
   async getDirectory() {
