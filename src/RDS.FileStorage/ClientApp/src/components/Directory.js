@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { BiFolder, BiFileBlank } from "react-icons/bi";
 import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
+import { FileUpload } from './FileUpload';
 
 export class Directory extends Component {
   static displayName = Directory.name;
@@ -38,23 +40,19 @@ export class Directory extends Component {
       <div>
         <h1 id="tabelLabel" >File System</h1>
         <p>This component demonstrates fetching data from the server.</p>
-        <Button variant="primary" onClick={() => upDirectory()}>
-          Primary
-        </Button>
-        <div>
-        <input  value={this.state.selectedFile} type='file' onChange={this.uploadFile}/>
-        </div>  
+
+        <>
+          <Button variant="primary" onClick={() => upDirectory()}>
+            Up
+          </Button>
+          {" "}
+          <FileUpload dir={this.state.currentDir}></FileUpload>
+        </>
+        
         <table className='table table-striped' aria-labelledby="tabelLabel">
           <thead>
-            <th>Current Directory</th>
-            <th>{this.state.currentDir}</th>
+            <th>Folder: {this.state.currentDir}</th>
           </thead>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Directory</th>
-          </tr>
-        </thead>
         <tbody>
           {this.state.folders.map(folder =>
             <tr key={folder.name} onClick={() => changeDirectory(folder)}> 

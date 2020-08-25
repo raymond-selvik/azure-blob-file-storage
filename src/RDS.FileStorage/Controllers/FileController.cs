@@ -44,15 +44,14 @@ namespace RDS.FileStorage.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromForm] FileDto file)
         {
-            
             try
             {
                 using(var stream = file.File.OpenReadStream())
                 {
-                    await fileService.SaveFile(file.Path + "/" + file.File.FileName, stream);
-                }
+                    var fileModel = await fileService.SaveFile(file.Path + "/" + file.File.FileName, stream);
 
-                return Ok();
+                    return Ok(fileModel);
+                }
             }
             catch(FileException e)
             {

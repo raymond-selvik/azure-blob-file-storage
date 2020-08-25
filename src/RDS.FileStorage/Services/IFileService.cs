@@ -11,6 +11,6 @@ namespace RDS.FileStorage.Services
         Task DeleteFile(string filePath);
         Task MoveFile(string fromFilePath, string toFilePath);
         Task RenameFile(string filePath, string newName);
-        Task SaveFile(string filePath, Stream file);
+        Task<FileModel> SaveFile(string filePath, Stream file);
     }
 }

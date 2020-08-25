@@ -1,5 +1,4 @@
 using System.IO;
-using RDS.FileStorage.Utils;
 
 namespace RDS.FileStorage.Models
 {

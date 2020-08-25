@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using RDS.FileStorage.Exceptions;
 using RDS.FileStorage.Models;
-using RDS.FileStorage.Utils;
 
 namespace RDS.FileStorage.Services
 {
@@ -100,21 +96,20 @@ namespace RDS.FileStorage.Services
             
         }
 
-        public async Task SaveFile(string filePath, Stream file)
+        public async Task<FileModel> SaveFile(string filePath, Stream file)
         {
             try
             {
-                //using(var stream = new MemoryStream(file))
-                //{
-                    await containerClient.UploadBlobAsync(filePath, file);
-                
-                //}
+                var blobClient = containerClient.GetBlobClient(filePath);
+                await blobClient.UploadAsync(file);
+
+                return new FileModel{FullPath = blobClient.Name};
+
             }
             catch(RequestFailedException e)
             {
                 throw new FileException($"Could not save file {filePath}");
             }        
         }
-
     }
 }
