@@ -3,7 +3,18 @@ import React, { Component } from 'react';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 
+import FolderIcon from '@material-ui/icons/Folder';
+import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
+import DescriptionIcon from '@material-ui/icons/Description';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Divider from '@material-ui/core/Divider';
+import ListSubheader from '@material-ui/core/ListSubheader';
+
 import { FileUpload } from './FileUpload';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { FileRow } from './FileRow'
 
 export class Directory extends Component {
   static displayName = Directory.name;
@@ -30,7 +41,6 @@ export class Directory extends Component {
   }
 
   render() {
-    var changeDirectory = this.changeDirectory;
     var upDirectory = this.upDirectory;
     var downloadFile = this.downloadFile;
     //var uploadFile = this.uploadFile;
@@ -43,33 +53,44 @@ export class Directory extends Component {
         <p>This component demonstrates fetching data from the server.</p>
 
         <>
-          <IconButton onClick={() => upDirectory()}>
-            <ArrowLeftIcon/>
+          <IconButton>
+            <CreateNewFolderIcon/>
           </IconButton>
+    
         
           <FileUpload
             dir={this.state.currentDir}
             callback={this.refreshDirectory}></FileUpload>
         </>
+        <Divider/>
+        <List component="nav" subheader={<ListSubheader><IconButton onClick={() => this.upDirectory()}><ArrowLeftIcon/></IconButton>{this.state.currentDir}</ListSubheader>} dense={true}>
+        <Divider/>
+        {this.state.folders.map(folder =>
+        <>
+          <ListItem button onClick={() => this.changeDirectory(folder)}>
+            <ListItemIcon>
+              <FolderIcon/>
+            </ListItemIcon>
+            <ListItemText>{folder.name}</ListItemText>
+          </ListItem>
+          <Divider/>
+          </>
+          )}
+        {this.state.files.map(file =>
+        <>
+          <FileRow file={file}/>
+          <Divider/>
+          </>
+          )}
+        </List>
+
+
         
         <table className='table table-striped' aria-labelledby="tabelLabel">
           <thead>
             <th>Folder: {this.state.currentDir}</th>
           </thead>
-        <tbody>
-          {this.state.folders.map(folder =>
-            <tr key={folder.name} onClick={() => changeDirectory(folder)}> 
-              <td>{folder.name}</td>
-              <td>{folder.fullPath}</td>
-            </tr>
-          )}
-          {this.state.files.map(file =>
-            <tr key={file.name} onClick={() => downloadFile(file)}>
-              <td>{file.name}</td>
-              <td>{file.fullPath}</td>
-            </tr>
-          )}
-        </tbody>
+    
       </table>
       </div>
     );

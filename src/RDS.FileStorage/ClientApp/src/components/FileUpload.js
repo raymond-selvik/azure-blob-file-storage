@@ -18,7 +18,7 @@ export class FileUpload extends Component {
 
         this.state = {
             file: '',
-            fileName: 'Choose file',
+            fileName: null,
             fileSelected: false,
             uploadMessage: '',
             uploadedFileDesciption: null,
