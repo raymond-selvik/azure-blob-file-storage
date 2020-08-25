@@ -14,6 +14,7 @@ export class FileUpload extends Component {
         this.state = {
             file: '',
             fileName: 'Choose file',
+            fileSelected: false,
             uploadMessage: '',
             uploadedFileDesciption: null,
             showUploader: false
@@ -23,11 +24,12 @@ export class FileUpload extends Component {
     handleClose = () => this.setState({showUploader: false});
     handleShow = () => this.setState({showUploader: true});
 
-    onChange = e => {
+    onFileSelect = e => {
         console.log(e.target.files);
         this.setState({
             file: e.target.files[0],
-            fileName: e.target.files[0].name
+            fileName: e.target.files[0].name,
+            fileSelected: true
         });
     }
 
@@ -89,10 +91,10 @@ export class FileUpload extends Component {
                             id="custom-file"
                             label={this.state.fileName}
                             custom
-                            onChange={this.onChange}
+                            onChange={this.onFileSelect}
                         />
                         <hr/>
-                        <Button variant="secondary" type="submit">Upload</Button>
+                        <Button variant="primary" type="submit" disabled={!this.state.fileSelected}>Upload</Button>
                     </Form>
                 </Modal.Body>
             </Modal>
