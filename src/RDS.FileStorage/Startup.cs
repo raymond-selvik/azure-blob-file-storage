@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,6 +30,8 @@ namespace RDS.FileStorage
                 builder.AddBlobServiceClient(Configuration.GetConnectionString("Storage"));
             });
 
+            services.AddSingleton<ICosmosService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+
             services.AddSingleton<IDirectoryService, DirectoryService>();
             services.AddSingleton<IFileService, FileService>();
 
@@ -37,6 +40,20 @@ namespace RDS.FileStorage
             {
                 configuration.RootPath = "ClientApp/build";
             });
+        }
+
+        private static async Task<CosmosService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+        {
+            string databaseName = configurationSection.GetSection("DatabaseName").Value;
+            string containerName = configurationSection.GetSection("ContainerName").Value;
+            string account = configurationSection.GetSection("Account").Value;
+            string key = configurationSection.GetSection("Key").Value;
+            Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
+            CosmosService cosmosService = new CosmosService(client, databaseName, containerName);
+            Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/drive");
+
+            return cosmosService;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

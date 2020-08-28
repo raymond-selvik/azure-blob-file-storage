@@ -8,55 +8,49 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
-import PublishIcon from '@material-ui/icons/Publish';
+import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 
-export class FileUpload extends Component {
-    static displayName = FileUpload.name;
 
+export class NewFolder extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            file: '',
-            fileName: null,
-            fileSelected: false,
-            uploadMessage: '',
-            uploadedFileDesciption: null,
-            showUploader: false
+            showDialog: false,
+            nameWritten: false,
+            folderName: ''
         }
     }
 
-    handleClose = () => this.setState({showUploader: false, fileSelected: false});
-    handleShow = () => this.setState({showUploader: true});
+    handleClose = () => this.setState({showDialog: false});
+    handleShow = () => this.setState({showDialog: true});
 
-    onFileSelect = e => {
-        console.log(e.target.files);
+    nameWritten = e => {
+        console.log(e.target.value);
         this.setState({
-            file: e.target.files[0],
-            fileName: e.target.files[0].name,
-            fileSelected: true
+            folderName: e.target.value,
+            nameWritten: true
         });
     }
 
     onSubmit = async e => {
-        //e.PreventDefault();
-        const formData = new FormData();
+        
+        var folder = {
+            name: this.state.folderName,
+            fullPath: this.props.dir
+        };
     
+        console.log(folder);
 
-        formData.append('fileForm', this.state.file);
-        formData.append('path', this.props.dir);
-
-        console.log(this.props.dir);
-
-        await fetch('file/upload',
+        await fetch('directory/newfolder',
         {
             method: 'POST',
             mode: 'cors',
             headers: {
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.tokenKey
+                'Accept': 'application/json; charset=utf-8',
+                'Content-Type': 'application/json;charset=UTF-8'
             },
-            body: formData
+            body: JSON.stringify(folder)
         })
         .then((response) => {
             if(!response.ok) throw new Error(response.status);
@@ -64,11 +58,6 @@ export class FileUpload extends Component {
                 console.log("jei");
                 return response.json();
             }
-        })
-        .then((data) => {
-            this.setState({
-                uploadedFileDesciption: data
-            })
         })
         .catch((error) => {
             console.error(error);
@@ -83,22 +72,21 @@ export class FileUpload extends Component {
         return(
             <>
             <IconButton onClick={this.handleShow}>
-                <PublishIcon/>
+                <CreateNewFolderIcon/>
             </IconButton>
-            <Dialog open={this.state.showUploader} onClose={this.handleClose}>
-                <DialogTitle>Upload File</DialogTitle>
+            <Dialog open={this.state.showDialog} onClose={this.handleClose}>
+                <DialogTitle>Add New Folder</DialogTitle>
                 <DialogContent>
           <DialogContentText>
-            To subscribe to this website, please enter your email address here. We will send updates
-            occasionally.
+            Please the name of the new folder. 
           </DialogContentText>
           <TextField
             autoFocus
-            onChange={this.onFileSelect}
+            onChange={this.nameWritten}
             margin="dense"
             id="name"
-            label={this.state.fileName}
-            type="file"
+            label={this.state.folderName}
+            type="text"
             fullWidth
           />
         </DialogContent>
@@ -106,12 +94,13 @@ export class FileUpload extends Component {
           <Button color="primary" onClick={this.handleClose}>
             Cancel
           </Button>
-          <Button color="primary" disabled={!this.state.fileSelected} type="submit" onClick={this.onSubmit}>
-            Upload
+          <Button color="primary" disabled={!this.state.nameWritten} type="submit" onClick={this.onSubmit}>
+            Ok
           </Button>
         </DialogActions>
             </Dialog>
         </>
         )
+
     }
 }

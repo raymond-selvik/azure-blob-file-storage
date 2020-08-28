@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 
+
 import IconButton from '@material-ui/core/IconButton';
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 
 import FolderIcon from '@material-ui/icons/Folder';
-import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
-import DescriptionIcon from '@material-ui/icons/Description';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -13,8 +12,11 @@ import Divider from '@material-ui/core/Divider';
 import ListSubheader from '@material-ui/core/ListSubheader';
 
 import { FileUpload } from './FileUpload';
+import { NewFolder } from './NewFolder';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { FileRow } from './FileRow'
+
+var path = require("path");
 
 export class Directory extends Component {
   static displayName = Directory.name;
@@ -22,7 +24,7 @@ export class Directory extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentDir: "files",
+      currentDir: "/",
       folders : [],
       files : [], 
       loading: true ,
@@ -30,20 +32,21 @@ export class Directory extends Component {
     };
 
     this.fileInput = React.fileInput;
-    this.changeDirectory = this.changeDirectory.bind(this);
     this.uploadFile = this.uploadFile.bind(this);
 
   }
 
 
   componentDidMount() {
-    this.getDirectory();
+    this.getDirectory(this.state.currentDir);
   }
 
   render() {
     var upDirectory = this.upDirectory;
     var downloadFile = this.downloadFile;
-    //var uploadFile = this.uploadFile;
+    var uploadFile = this.uploadFile;
+    var getDirectory = this.getDirectory;
+    var changeDirectory = this.changeDirectory
 
  
     
@@ -53,9 +56,10 @@ export class Directory extends Component {
         <p>This component demonstrates fetching data from the server.</p>
 
         <>
-          <IconButton>
-            <CreateNewFolderIcon/>
-          </IconButton>
+          <NewFolder
+            dir={this.state.currentDir}
+            callback={this.refreshDirectory}
+          />
     
         
           <FileUpload
@@ -83,15 +87,6 @@ export class Directory extends Component {
           </>
           )}
         </List>
-
-
-        
-        <table className='table table-striped' aria-labelledby="tabelLabel">
-          <thead>
-            <th>Folder: {this.state.currentDir}</th>
-          </thead>
-    
-      </table>
       </div>
     );
   }
@@ -154,52 +149,38 @@ export class Directory extends Component {
     })
   }
 
-  changeDirectory  = (folder) => {
-    this.setState({
-      currentDir : folder.fullPath
-    }, () => {
-      this.getDirectory()
-    })
+  upDirectory = () => {
+    console.log(this.state.currentDir);
+    this.getDirectory(this.state.currentDir + "/..");
   }
 
-  upDirectory = () => {
-
-    var array = this.state.currentDir.split('/');
-    array.pop();
-
-    var newDir = "";
-    array.forEach(element => {
-      newDir = newDir + element + '/'
-    });
-
-    newDir = newDir.slice(0, newDir.length - 1);
-
-    this.setState({
-      currentDir : newDir
-    }, () => {
-      this.getDirectory()
-    })
+  changeDirectory = (folder) => {
+    console.log(folder.fullPath);
+    this.getDirectory(folder.fullPath);
   }
 
   refreshDirectory = () => {
-    this.getDirectory();
+    this.getDirectory(this.state.currentDir);
   }
 
-  async getDirectory() {
+  getDirectory = async (dir) => {
     const folderReponse = await fetch('directory/folders?' + new URLSearchParams({
-      dir: this.state.currentDir,
+      dir: dir
     }));
     const folders = await folderReponse.json();
 
     const fileResponse = await fetch('directory/files?' + new URLSearchParams({
-      dir: this.state.currentDir,
+      dir: dir
     }));
     const files = await fileResponse.json();
 
     console.log(folders);
     console.log(files);
+    console.log(dir);
+    var newDir = path.normalize(dir)
 
     this.setState({
+      currentDir: newDir,
       files: files,
       folders: folders,
       loading: false 

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -27,11 +28,11 @@ namespace RDS.FileStorage.Controllers
         }
 
         [HttpPost("download")]
-        public async Task<IActionResult> Download([FromBody] FileModel file)
+        public async Task<IActionResult> Download([FromBody] FileEntity file)
         {
             try
             {
-                var fileBytes = await fileService.GetFile(file.FullPath);
+                var fileBytes = await fileService.GetFile(file);
                 return File(fileBytes, "application/octet-stream");
             }
             catch(FileException e)
@@ -46,22 +47,22 @@ namespace RDS.FileStorage.Controllers
         {
             try
             {
-                string filename;
-                if(file.Path == null) 
-                {
-                    filename = file.File.FileName;
-                }
-                else 
-                {
-                    filename = file.Path + "/" + file.File.FileName;
 
-                }
-
-                using(var stream = file.File.OpenReadStream())
+                var newFile = new FileEntity
                 {
-                    var fileModel = await fileService.SaveFile(filename, stream);
+                    Id = Guid.NewGuid().ToString(),
+                    Name = file.FileForm.FileName,
+                    Path = Path.Join(file.Path, file.FileForm.FileName),
+                    Folder = file.Path,
+                    Drive = "demo",
+                    Type = FileType.FILE  
+                };
+                
+                using(var stream = file.FileForm.OpenReadStream())
+                {
+                    await fileService.SaveFile(newFile, stream);
 
-                    return Ok(fileModel);
+                    return Ok();
                 }
             }
             catch(FileException e)

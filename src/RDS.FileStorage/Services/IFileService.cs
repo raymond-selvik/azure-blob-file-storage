@@ -7,10 +7,8 @@ namespace RDS.FileStorage.Services
 {
     public interface IFileService
     {
-        Task<byte[]> GetFile(string filePath);
-        Task DeleteFile(string filePath);
-        Task MoveFile(string fromFilePath, string toFilePath);
-        Task RenameFile(string filePath, string newName);
-        Task<FileModel> SaveFile(string filePath, Stream file);
+        Task<byte[]> GetFile(FileEntity file);
+        Task DeleteFile(FileEntity file);
+        Task SaveFile(FileEntity file, Stream content);
     }
 }

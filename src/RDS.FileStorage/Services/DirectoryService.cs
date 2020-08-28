@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -12,86 +16,50 @@ namespace RDS.FileStorage.Services
     public class DirectoryService : IDirectoryService
     {
 
-        private readonly BlobServiceClient blobServiceClient;
+        private readonly ICosmosService cosmosService;
         private readonly ILogger<IDirectoryService> log;
-        private readonly BlobContainerClient containerClient;
+
         
-        public DirectoryService(BlobServiceClient blobServiceClient, ILogger<IDirectoryService> log)
+        public DirectoryService(ICosmosService cosmosService, ILogger<IDirectoryService> log)
         {
-            this.blobServiceClient = blobServiceClient;
+            this.cosmosService = cosmosService;
             this.log = log;
-            containerClient = blobServiceClient.GetBlobContainerClient("demo");
         }
 
         
-        public List<FolderModel> GetListOfFolders(string dir)
+        public async Task<List<FolderModel>> GetListOfFolders(string dir)
         {
-            try
+           
+            var folders = new List<FolderModel>();
+            var files = await cosmosService.GetItemsAsync($"SELECT * from c  WHERE c.folder = '{dir}' AND c.type = '{FileType.FOLDER}'");
+            
+            foreach(var file in files)
             {
-                 var folders = new List<FolderModel>();
-                 var prefix = DirPathToBlobPrefix(dir);
-
-                 foreach(var item in containerClient.GetBlobsByHierarchy(prefix: prefix, delimiter : "/"))
-                 {
-                     if(item.IsPrefix)
-                     {
-                         folders.Add(new FolderModel{FullPath = BlobPrefixToDirPath(item.Prefix)});
-                     }
-                 }
-
-                 return folders;
+                folders.Add(new FolderModel{FullPath = file.Path, Name = file.Name});
             }
-            catch(RequestFailedException e)
-            {
-                throw new DirectoryException($"Could not get list of folders in directory {dir}");
-            }
+            folders = folders.Distinct().ToList();
+            return folders;
+    
         }
 
-        public List<FileModel> GetListOfFiles(string dir)
+        public async Task<List<FileEntity>> GetListOfFiles(string dir)
         {
-            try
-            {
-                 var files = new List<FileModel>();
-                 var prefix =  DirPathToBlobPrefix(dir);
-
-                 foreach(var item in containerClient.GetBlobsByHierarchy(prefix: DirPathToBlobPrefix(dir), delimiter : "/"))
-                 {
-                     if(item.IsBlob)
-                     {
-                         files.Add(new FileModel{FullPath = item.Blob.Name });
-                     }
-                 }
-
-                 return files;
-            }
-            catch(RequestFailedException e)
-            {
-                throw new DirectoryException($"Could not get list of files in directory {dir}");
-            }
+            return await cosmosService.GetItemsAsync($"SELECT * FROM c WHERE c.folder = '{dir}' AND c.type = '{FileType.FILE}'");
         }
 
-        string DirPathToBlobPrefix(string dir)
+        public async Task AddNewFolder(string dir, string name)
         {
-            if (dir == null) 
+            var folder = new FileEntity 
             {
-                return "";
-            }
-            else
-            {
-                return dir + "/";
-            }
-        }
+                Id = Guid.NewGuid().ToString(),
+                Path = Path.Join(dir, name),
+                Name = name,
+                Folder = dir,
+                Type = FileType.FOLDER,
+                Drive = "demo"
+            };
 
-        string BlobPrefixToDirPath(string prefix)
-        {
-            if(prefix == "") 
-            {
-                return "";
-            }
-            else
-            {
-                return prefix.Remove(prefix.Length - 1);
-            }
+            await cosmosService.AddItemAsync(folder);
         }
     }
 }
